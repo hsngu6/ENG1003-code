@@ -1,0 +1,130 @@
+<html>
+  <head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>ForecastIo Test</title>
+    <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+    <link rel="stylesheet" href="https://code.getmdl.io/1.1.3/material.indigo-pink.min.css">
+    <script defer src="https://code.getmdl.io/1.1.3/material.min.js"></script>
+    <style>
+    .full-width{
+        width: 100%;
+    }
+    </style>
+  </head>
+  <body>
+  
+  <!-- Always shows a header, even in smaller screens. -->
+<div class="mdl-layout mdl-js-layout mdl-layout--fixed-header">
+  <header class="mdl-layout__header">
+    <div class="mdl-layout__header-row">
+      <!-- Title -->
+      <span class="mdl-layout-title">Forecast IO Test</span>
+      <!-- Add spacer, to align navigation to the right -->
+      <div class="mdl-layout-spacer"></div>
+      <!-- Navigation. We hide it in small screens. -->
+    </div>
+  </header>
+    <main class="mdl-layout__content">
+        <div class="page-content">
+            <table class="full-width mdl-data-table mdl-js-data-table mdl-data-table mdl-shadow--2dp">
+              <tbody id = "weather-data">
+              </tbody>
+            </table>
+        </div>
+    </main>
+    </div>
+    
+
+    <script>
+    var weatherDataElement = document.getElementById('weather-data');
+    // Returns a date in the format "YYYY-MM-DD".
+    simpleDateString = function(date) {
+        function pad(value)
+        {
+            return ("0" + value).slice(-2);
+        }
+    
+        var dateString = date.getFullYear() + "-" + 
+                pad(date.getMonth() + 1, 2) + '-' + 
+                pad(date.getDate(), 2);
+        
+        return dateString;
+    }
+    
+    // Date format required by forecast.io API.
+    // We always represent a date with a time of midday,
+    // so our choice of day isn't susceptible to time zone errors.
+    forecastDateString = function(date) {
+        return simpleDateString(date) + "T12:00:00";
+    }
+     
+    // Make the request
+    var data = {
+        latitude: -37.9115568, 
+        longitude: 145.1340114,
+        //time: "",
+        callback: "displayWeather"
+    };    
+    forecastIOKey = "d5ad10dfaecc9029172149631f0f9725";
+    jsonpRequest("https://api.forecast.io/forecast/", data);
+    
+        
+    function jsonpRequest(url, data)
+    {
+        // Build URL parameters from data object.
+        var date = new Date;
+        console.log(JSON.stringify(date));
+        var latitude= -37.9115568, longitude= 145.1340114;
+        
+        var formattedDate = forecastDateString(date);
+        console.log(formattedDate);
+        forecastRef = latitude.toString()+","+longitude.toString()+","+formattedDate;
+        
+        var script = document.createElement('script');
+        script.src = url + forecastIOKey + "/" + forecastRef+"?units=si&callback=weatherResponse";
+        document.body.appendChild(script);
+		console.log( script.src );
+        
+    }
+    
+    function displayWeather( weatherData )
+    {
+        var listHTML = "";
+        for(key in weatherData)
+        {
+            listHTML += "<tr> <td class=\"full-width mdl-data-table__cell--non-numeric\">" + weatherData[key];
+            console.log( weatherData[key]);
+        }
+        weatherDataElement.innerHTML = listHTML;
+    }
+        
+    
+    
+    function airportResponse(airport)
+    {
+        var message = "Name: " + airport.name + "\n";
+        message += "Location: " + airport.city + ", " + airport.country;
+        alert(message);
+    }
+ 
+    function listRowTapped(routeIndex)
+    {
+        
+        console.log(routes[routeIndex].destinationAirport + "(" + routes[routeIndex].destinationAirportId + ")");
+
+        //   PART 2:
+        // ADD CODE HERE TO REQUEST AIRPORT INFORMATION
+        var data=
+        {
+            id : routes[routeIndex].destinationAirportId,
+            callback: "airportResponse"
+        }
+        jsonpRequest("http://eng1003.eng.monash.edu/OpenFlights/airport/", data);
+    }
+
+
+        
+    </script>
+  </body>
+</html>
